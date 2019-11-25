@@ -3,16 +3,14 @@
  */
 package fr.ciadlab.lanechange.^agent
 
+import fr.ciadlab.lanechange.capacities.VehicleControlCapacity
+import fr.ciadlab.lanechange.capacities.VehicleSelfPerceptionCapacity
 import fr.ciadlab.lanechange.env.Vehicle
+import fr.ciadlab.lanechange.skills.VehicleControl
+import fr.ciadlab.lanechange.skills.VehicleSelfPerception
+import io.sarl.core.Behaviors
 import io.sarl.core.Destroy
 import io.sarl.core.Initialize
-import io.sarl.core.Logging
-import fr.ciadlab.gym.TimeSimulationStep
-import fr.ciadlab.lanechange.capacities.VehicleControlCapacity
-import io.sarl.core.Behaviors
-import fr.ciadlab.lanechange.skills.VehicleControl
-import fr.ciadlab.lanechange.capacities.VehicleSelfPerceptionCapacity
-import fr.ciadlab.lanechange.skills.VehicleSelfPerception
 
 /** 
  * Represents a driver
