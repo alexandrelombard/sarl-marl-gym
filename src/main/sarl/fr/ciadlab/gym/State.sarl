@@ -1,0 +1,35 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym
+
+import org.eclipse.xtend.lib.annotations.Accessors
+
+/** 
+ * Represents a system state
+ * @author Alexandre Lombard
+ * 
+ */
+class State extends Object {
+	
+	@Accessors(PUBLIC_GETTER)
+	val state : int[]
+	@Accessors(PUBLIC_GETTER)
+	val sizes : int[]
+	
+	new (state : int[], sizes : int[]) {
+		this.state = state
+		this.sizes = sizes
+		
+		assert(sum(sizes) == state.length)
+	}
+	
+	private static def sum(array: int[]) {
+		var sum = 0
+		for(var i = 0; i < array.length; i++) {
+			sum += array.get(i)
+		}
+		return sum
+	}
+	
+}

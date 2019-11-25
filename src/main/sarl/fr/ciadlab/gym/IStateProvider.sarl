@@ -1,0 +1,14 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym
+
+/** 
+ * @author Alexandre Lombard
+ * 
+ */
+interface IStateProvider {
+	
+	def getState() : State
+	
+}

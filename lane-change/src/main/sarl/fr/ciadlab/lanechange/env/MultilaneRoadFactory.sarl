@@ -1,0 +1,82 @@
+/** 
+ * 
+ */
+package fr.ciadlab.lanechange.env
+
+import java.util.List
+import java.util.ArrayList
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
+
+/** 
+ * Factory for a road with several lanes
+ * @author Alexandre Lombard
+ * 
+ */
+class MultilaneRoadFactory extends Object {
+	
+	var template : List<Vector2D> = newArrayList(new Vector2D(0.0, 0.0), new Vector2D(1000.0, 0.0))
+	var offset : Double = 3.5
+	
+	def withTemplate(points : List<Vector2D>) : MultilaneRoadFactory {
+		this.template = template
+		return this
+	}
+	
+	def withOffset(offset : Double) : MultilaneRoadFactory {
+		this.offset = offset
+		return this
+	}
+	
+	def createLanes(lanesCount: Integer) : List<Lane> {
+		val lanes = new ArrayList<Lane>(lanesCount)
+		
+		var previousLane : Lane = null
+		
+		for(var i = 0; i < lanesCount; i++) {
+			// Build the lane object
+			val lane = new Lane(previousLane)
+			lanes.add(lane)
+			previousLane = lane
+			
+			// Build the points
+			val points = applyOffset(i * offset, template)
+			lane.points.addAll(points)
+		}
+		
+		return lanes
+	}
+	
+	private static def applyOffset(offset: Double, points : List<Vector2D>) : List<Vector2D> {
+		if(points.size < 2) {
+			throw new IllegalArgumentException("The number of points should be at least 2")
+		}
+		
+		val result = <Vector2D>newArrayList
+		
+		// First we compute the normal vector of each point of the original list
+		val normals : ArrayList<Vector2D> = <Vector2D>newArrayList
+		
+		normals.add(points.get(1).subtract(points.get(0)).normal)
+		
+		for(var i = 1; i < points.size() - 1; i++) {
+			val previous = points.get(i - 1)
+			val next = points.get(i + 1)
+			normals.add(next.subtract(previous).normal)
+		}
+		
+		normals.add(points.last.subtract(points.get(points.size - 2)).normal)
+		
+		// Then we apply the offset using the normal
+		for(var i = 0; i < points.size(); i++) {
+			result.add(points.get(i).add(offset, normals.get(i)))
+		}
+		
+		return result
+	}
+	
+	private static def normal(v : Vector2D) : Vector2D {
+		val normalized = v.normalize
+		return new Vector2D(-normalized.y, normalized.x)
+	}
+	
+}

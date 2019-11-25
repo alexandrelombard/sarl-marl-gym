@@ -1,0 +1,19 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym
+
+/** 
+ * Simulation step associated to a run time
+ * @author Alexandre Lombard
+ * 
+ */
+event TimeSimulationStep extends SimulationStep {
+	
+	/** The delta time in seconds */
+	val deltaTime : Double
+	
+	new(deltaTime : Double) {
+		this.deltaTime = deltaTime
+	}
+}
