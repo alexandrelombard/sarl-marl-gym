@@ -30,7 +30,7 @@ class Vehicle extends Object {
 	var velocity : Vector2D = Vector2D.ZERO
 
 	@Accessors(PUBLIC_GETTER)
-	var acceleration : Double
+	var acceleration : Double = 0.0
 	
 	@Accessors(PUBLIC_GETTER)
 	var wheelAngle : Double
@@ -55,6 +55,16 @@ class Vehicle extends Object {
 		this.direction = initialDirection
 		this.velocity = initialDirection.scalarMultiply(initialSpeed)
 		this.state = VehicleState.ON_LANE
+	}
+	
+	def setAcceleration(acceleration : Double) {
+		// This one is not generated using the @Accessors annotation so we can add limits later
+		this.acceleration = acceleration
+	}
+	
+	def setWheelAngle(wheelAngle : Double) {
+		// This one is not generated using the @Accessors annotation so we can add limits later
+		this.wheelAngle = wheelAngle
 	}
 
 	/** 

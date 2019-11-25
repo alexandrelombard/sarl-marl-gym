@@ -1,0 +1,30 @@
+/** 
+ * 
+ */
+package fr.ciadlab.lanechange.skills
+
+import fr.ciadlab.lanechange.capacities.VehicleControlCapacity
+import fr.ciadlab.lanechange.env.Vehicle
+
+/** 
+ * Vehicle control skill
+ * @author Alexandre Lombard
+ * 
+ */
+skill VehicleControl implements VehicleControlCapacity {
+	
+	val vehicle : Vehicle
+	
+	new (vehicle : Vehicle) {
+		this.vehicle = vehicle
+	}
+
+
+	override setAcceleration(acceleration : Double) {
+		this.vehicle.acceleration = acceleration
+	}
+
+	override setWheelAngle(wheelAngle : Double) {
+		this.vehicle.wheelAngle = wheelAngle
+	}
+}

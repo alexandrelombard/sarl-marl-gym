@@ -20,12 +20,12 @@ import fr.ciadlab.gym.TimeSimulationStep
  * 
  */
 agent BootAgent {
-	uses Logging, Lifecycle, Schedules, DefaultContextInteractions
+	uses Lifecycle, Schedules, DefaultContextInteractions
 	
 	val vehicles = <Vehicle>newArrayList
 
 	on Initialize {
-		var vehiclesCount = 10
+		var vehiclesCount = 1
 		
 		// Load the environment
 		val lanes = new MultilaneRoadFactory().createLanes(5)
@@ -48,6 +48,8 @@ agent BootAgent {
 		
 		// Schedule execution
 		every(100.milliseconds) [
+			this.vehicles.forEach [ it.update(0.1) ]
+			
 			emit(new TimeSimulationStep(0.1))
 		]
 	}

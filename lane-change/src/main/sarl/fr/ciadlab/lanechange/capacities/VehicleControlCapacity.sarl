@@ -1,0 +1,15 @@
+/** 
+ * 
+ */
+package fr.ciadlab.lanechange.capacities
+
+/** 
+ * @author Alexandre Lombard
+ * 
+ */
+capacity VehicleControlCapacity {
+	
+	def setAcceleration(acceleration : Double)
+	def setWheelAngle(wheelAngle : Double)
+	
+}

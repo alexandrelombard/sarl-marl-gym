@@ -1,0 +1,30 @@
+/** 
+ * 
+ */
+package fr.ciadlab.lanechange.^agent
+
+import fr.ciadlab.gym.TimeSimulationStep
+import fr.ciadlab.lanechange.capacities.VehicleControlCapacity
+import fr.ciadlab.lanechange.capacities.VehicleSelfPerceptionCapacity
+import io.sarl.core.Logging
+
+/** 
+ * @author Alexandre Lombard
+ * 
+ */
+behavior DefaultDriverBehavior {
+	uses VehicleControlCapacity, VehicleSelfPerceptionCapacity, Logging
+	
+	val targetSpeed = 50 / 3.6 // We're in m/s
+
+	on TimeSimulationStep {
+		// Update speed to reach the target speed
+		if(velocity.norm < targetSpeed) {
+			acceleration = 2.0
+		} else {
+			acceleration = 0.0
+		}
+		
+		info("Position: " + position)
+	}
+}

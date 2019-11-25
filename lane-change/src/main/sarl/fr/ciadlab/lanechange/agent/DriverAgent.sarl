@@ -8,6 +8,11 @@ import io.sarl.core.Destroy
 import io.sarl.core.Initialize
 import io.sarl.core.Logging
 import fr.ciadlab.gym.TimeSimulationStep
+import fr.ciadlab.lanechange.capacities.VehicleControlCapacity
+import io.sarl.core.Behaviors
+import fr.ciadlab.lanechange.skills.VehicleControl
+import fr.ciadlab.lanechange.capacities.VehicleSelfPerceptionCapacity
+import fr.ciadlab.lanechange.skills.VehicleSelfPerception
 
 /** 
  * Represents a driver
@@ -15,23 +20,20 @@ import fr.ciadlab.gym.TimeSimulationStep
  * 
  */
 agent DriverAgent {
-	uses Logging
-	
-	var vehicle : Vehicle
+	uses Behaviors
 
 	on Initialize {
 		synchronized (this) {
-			this.vehicle = occurrence.parameters.get(0) as Vehicle	
+			val vehicle = occurrence.parameters.get(0) as Vehicle	
+			
+			setSkill(new VehicleControl(vehicle), typeof(VehicleControlCapacity))
+			setSkill(new VehicleSelfPerception(vehicle), typeof(VehicleSelfPerceptionCapacity))
+			
+			registerBehavior(new DefaultDriverBehavior(this))
 		}
-	}
-	
-	on TimeSimulationStep {
-		// TODO
 	}
 
 	on Destroy {
-		// Event trigger when the agent is destroyed from the system.
-		// You should put all the resource releasing statements in this block of code.
-		info("The agent was stopped.")
+		//
 	}
 }

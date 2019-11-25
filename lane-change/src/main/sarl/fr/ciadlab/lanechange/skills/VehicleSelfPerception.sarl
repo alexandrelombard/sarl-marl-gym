@@ -1,0 +1,38 @@
+/** 
+ * 
+ */
+package fr.ciadlab.lanechange.skills
+
+import fr.ciadlab.lanechange.capacities.VehicleSelfPerceptionCapacity
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
+import fr.ciadlab.lanechange.env.Vehicle
+
+/** 
+ * @author Alexandre Lombard
+ * 
+ */
+skill VehicleSelfPerception implements VehicleSelfPerceptionCapacity {
+	
+	val vehicle : Vehicle
+	
+	new (vehicle : Vehicle) {
+		this.vehicle = vehicle
+	}
+	
+	def getPosition : Vector2D {
+		return this.vehicle.position
+	}
+	
+	def getVelocity : Vector2D {
+		return this.vehicle.velocity
+	}
+	
+	def getAcceleration : Double {
+		return this.vehicle.acceleration
+	}
+	
+	def getYaw : Double {
+		return this.vehicle.yaw
+	}
+	
+}

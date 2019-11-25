@@ -1,0 +1,19 @@
+/** 
+ * 
+ */
+package fr.ciadlab.lanechange.capacities
+
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
+
+/** 
+ * @author Alexandre Lombard
+ * 
+ */
+capacity VehicleSelfPerceptionCapacity {
+	
+	def getPosition() : Vector2D
+	def getVelocity() : Vector2D
+	def getAcceleration() : Double
+	def getYaw() : Double
+	
+}
