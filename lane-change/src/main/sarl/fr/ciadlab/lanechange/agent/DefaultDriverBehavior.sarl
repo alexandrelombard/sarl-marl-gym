@@ -7,6 +7,7 @@ import fr.ciadlab.gym.TimeSimulationStep
 import fr.ciadlab.lanechange.capacities.VehicleControlCapacity
 import fr.ciadlab.lanechange.capacities.VehicleSelfPerceptionCapacity
 import io.sarl.core.Logging
+import io.sarl.core.Initialize
 
 /** 
  * @author Alexandre Lombard
@@ -16,6 +17,11 @@ behavior DefaultDriverBehavior {
 	uses VehicleControlCapacity, VehicleSelfPerceptionCapacity, Logging
 	
 	val targetSpeed = 50 / 3.6 // We're in m/s
+	
+	on Initialize {
+		info("Initial position: " + position)
+		info("Initial velocity: " + velocity)
+	}
 
 	on TimeSimulationStep {
 		// Update speed to reach the target speed
@@ -25,6 +31,6 @@ behavior DefaultDriverBehavior {
 			acceleration = 0.0
 		}
 		
-		info("Position: " + position)
+		info("Position: " + position + " ; Speed: " + velocity.norm)
 	}
 }
