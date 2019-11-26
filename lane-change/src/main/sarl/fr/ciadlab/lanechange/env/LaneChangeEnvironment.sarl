@@ -31,8 +31,11 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 	@Accessors(PUBLIC_GETTER)
 	val vehiclesCount : Integer
 
+	@Accessors(PUBLIC_GETTER)
 	val lanes = <Lane>newArrayList
+	@Accessors(PUBLIC_GETTER)
 	val vehicles = <Vehicle>newArrayList
+	
 	val agents = <UUID>newArrayList
 	
 	val vehicleAffectation = <UUID, Vehicle> newHashMap
@@ -81,6 +84,10 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 		initialize
 	}
 	
+	def step {
+		vehicles.forEach[it.update(0.1)]
+	}
+	
 	def getAvailableActions(uuid : UUID) : List<Action> {
 		return availableActions
 	}
@@ -105,7 +112,7 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 		}
 	}
 	
-	def getState : State {
+	def getState(uuid : UUID) : State {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub")
 	}
 	

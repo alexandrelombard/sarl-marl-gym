@@ -13,6 +13,7 @@ import io.sarl.core.Lifecycle
 import io.sarl.core.Schedules
 import io.sarl.core.DefaultContextInteractions
 import fr.ciadlab.gym.TimeSimulationStep
+import fr.ciadlab.lanechange.env.LaneChangeEnvironment
 
 /** 
  * Initializes the simulation
@@ -21,34 +22,22 @@ import fr.ciadlab.gym.TimeSimulationStep
  */
 agent BootAgent {
 	uses Lifecycle, Schedules, DefaultContextInteractions
-	
-	val vehicles = <Vehicle>newArrayList
 
 	on Initialize {
-		var vehiclesCount = 1
+		val vehiclesCount = 1
 		
-		// Load the environment
-		val lanes = new MultilaneRoadFactory().createLanes(5)
-		
-		// Load the vehicles
-		for (var i = 0; i < vehiclesCount; i++) {
-			var randomLane = lanes.get((Math.random * lanes.size) as int)
-			var randomAbscissa = Math.random() * randomLane.length
-			var randomPosition = randomLane.getPosition(randomAbscissa)
-			var randomDirection = randomLane.getDirection(randomAbscissa)
-			this.vehicles.add(new Vehicle(randomPosition, randomDirection, 0.0, randomLane))
-		}
+		val environment = new LaneChangeEnvironment(vehiclesCount)
 		
 		// Load the agents
 		for (var i = 0; i < vehiclesCount; i++) {
-			val vehicle = this.vehicles.get(i)
+			val vehicle = environment.vehicles.get(i)
 			
 			spawn(typeof(DriverAgent), vehicle)
 		}
 		
 		// Schedule execution
 		every(100.milliseconds) [
-			this.vehicles.forEach [ it.update(0.1) ]
+			environment.step
 			
 			emit(new TimeSimulationStep(0.1))
 		]
