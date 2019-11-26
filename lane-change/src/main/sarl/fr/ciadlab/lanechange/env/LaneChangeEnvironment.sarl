@@ -1,0 +1,112 @@
+/** 
+ * 
+ */
+package fr.ciadlab.lanechange.env
+
+import fr.ciadlab.gym.IActionProvider
+import fr.ciadlab.gym.IEnvironment
+import java.util.UUID
+import java.util.List
+import fr.ciadlab.gym.Action
+import fr.ciadlab.gym.State
+import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.stream.Collectors
+
+/** 
+ * Environment model
+ * @author Alexandre Lombard
+ * 
+ */
+class LaneChangeEnvironment extends Object implements IEnvironment  {
+	
+	val availableActions = <Action>newArrayList(
+		new Action(0, "NO_ACCELERATION"),
+		new Action(1, "SOFT_ACCELERATION"),
+		new Action(2, "HARD_ACCELERATION"),
+		new Action(3, "SOFT_BRAKE"),
+		new Action(4, "HARD_BRAKE"))
+
+	@Accessors(PUBLIC_GETTER)
+	val lanesCount : Integer
+	@Accessors(PUBLIC_GETTER)
+	val vehiclesCount : Integer
+
+	val lanes = <Lane>newArrayList
+	val vehicles = <Vehicle>newArrayList
+	val agents = <UUID>newArrayList
+	
+	val vehicleAffectation = <UUID, Vehicle> newHashMap
+		
+	new(vehiclesCount : Integer = 1, lanesCount : Integer = 5) {
+		this.vehiclesCount = vehiclesCount
+		this.lanesCount = lanesCount
+	}
+	
+	def clear {
+		this.lanes.clear
+		this.vehicles.clear
+	}
+	
+	def initialize {
+		// Load the environment
+		val lanes = new MultilaneRoadFactory().createLanes(lanesCount)
+
+		// Load the vehicles
+		for (var i = 0; i < vehiclesCount; i++) {
+			var randomLane = lanes.get((Math.random * lanes.size) as int)
+			var randomAbscissa = Math.random() * randomLane.length
+			var randomPosition = randomLane.getPosition(randomAbscissa)
+			var randomDirection = randomLane.getDirection(randomAbscissa)
+			this.vehicles.add(new Vehicle(randomPosition, randomDirection, 0.0, randomLane))
+		}
+	}
+	
+	def registerAgent(uuid : UUID) {
+		synchronized (this) {
+			agents.add(uuid)
+
+			// Affect a vehicle to the newly registered agent
+			val availableVehicle = this.vehicles.stream.filter([!this.vehicleAffectation.containsKey(it)]).findFirst
+
+			if (availableVehicle.isPresent) {
+				this.vehicleAffectation.put(uuid, availableVehicle.get)
+			} else {
+				throw new IllegalStateException("There is no available vehicles for the registered agent")
+			}
+		}
+	}
+	
+	def reset {
+		clear
+		initialize
+	}
+	
+	def getAvailableActions(uuid : UUID) : List<Action> {
+		return availableActions
+	}
+	
+	def applyAction(uuid : UUID, action : Action) {
+		synchronized(this) {
+			val vehicle = this.vehicleAffectation.get(uuid)
+			
+			switch action.id {
+				case 0:
+					vehicle.acceleration = 0.0
+				case 1:
+					vehicle.acceleration = 1.0
+				case 2:
+					vehicle.acceleration = 2.0
+				case 3:
+					vehicle.acceleration = -2.0
+				case 4:
+					vehicle.acceleration = -6.0
+				
+			}
+		}
+	}
+	
+	def getState : State {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+}

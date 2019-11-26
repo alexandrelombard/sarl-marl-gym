@@ -1,7 +1,7 @@
 /** 
  * 
  */
-package fr.ciadlab.lanechange.skills
+package fr.ciadlab.lanechange.skills.direct
 
 import fr.ciadlab.lanechange.capacities.VehicleSelfPerceptionCapacity
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
@@ -11,7 +11,7 @@ import fr.ciadlab.lanechange.env.Vehicle
  * @author Alexandre Lombard
  * 
  */
-skill VehicleSelfPerception implements VehicleSelfPerceptionCapacity {
+skill DirectVehicleSelfPerception implements VehicleSelfPerceptionCapacity {
 	
 	val vehicle : Vehicle
 	

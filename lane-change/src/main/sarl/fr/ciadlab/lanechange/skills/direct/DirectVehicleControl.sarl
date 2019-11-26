@@ -1,7 +1,7 @@
 /** 
  * 
  */
-package fr.ciadlab.lanechange.skills
+package fr.ciadlab.lanechange.skills.direct
 
 import fr.ciadlab.lanechange.capacities.VehicleControlCapacity
 import fr.ciadlab.lanechange.env.Vehicle
@@ -11,7 +11,7 @@ import fr.ciadlab.lanechange.env.Vehicle
  * @author Alexandre Lombard
  * 
  */
-skill VehicleControl implements VehicleControlCapacity {
+skill DirectVehicleControl implements VehicleControlCapacity {
 	
 	val vehicle : Vehicle
 	

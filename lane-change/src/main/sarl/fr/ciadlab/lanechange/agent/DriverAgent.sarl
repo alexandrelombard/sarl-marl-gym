@@ -6,11 +6,11 @@ package fr.ciadlab.lanechange.^agent
 import fr.ciadlab.lanechange.capacities.VehicleControlCapacity
 import fr.ciadlab.lanechange.capacities.VehicleSelfPerceptionCapacity
 import fr.ciadlab.lanechange.env.Vehicle
-import fr.ciadlab.lanechange.skills.VehicleControl
-import fr.ciadlab.lanechange.skills.VehicleSelfPerception
 import io.sarl.core.Behaviors
 import io.sarl.core.Destroy
 import io.sarl.core.Initialize
+import fr.ciadlab.lanechange.skills.direct.DirectVehicleControl
+import fr.ciadlab.lanechange.skills.direct.DirectVehicleSelfPerception
 
 /** 
  * Represents a driver
@@ -24,8 +24,8 @@ agent DriverAgent {
 		synchronized (this) {
 			val vehicle = occurrence.parameters.get(0) as Vehicle	
 			
-			setSkill(new VehicleControl(vehicle), typeof(VehicleControlCapacity))
-			setSkill(new VehicleSelfPerception(vehicle), typeof(VehicleSelfPerceptionCapacity))
+			setSkill(new DirectVehicleControl(vehicle), typeof(VehicleControlCapacity))
+			setSkill(new DirectVehicleSelfPerception(vehicle), typeof(VehicleSelfPerceptionCapacity))
 			
 			registerBehavior(new DefaultDriverBehavior(this))
 		}

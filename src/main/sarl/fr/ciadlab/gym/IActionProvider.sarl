@@ -3,12 +3,17 @@
  */
 package fr.ciadlab.gym
 
+import java.util.List
+import java.util.UUID
+
 /** 
  * @author Alexandre Lombard
  * 
  */
 interface IActionProvider {
 	
+	def getAvailableActions(uuid : UUID) : List<Action>
 	
+	def applyAction(uuid : UUID, action : Action)
 	
 }

@@ -1,0 +1,26 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym
+
+import org.eclipse.xtend.lib.annotations.Accessors
+
+/** 
+ * Represents an action
+ * @author Alexandre Lombard
+ * 
+ */
+class Action extends Object {
+	
+	@Accessors(PUBLIC_GETTER)
+	val id : Integer
+	
+	@Accessors(PUBLIC_GETTER)
+	val semantic: String
+	
+	new(id: Integer, semantic: String) {
+		this.id = id
+		this.semantic = semantic
+	}
+	
+}

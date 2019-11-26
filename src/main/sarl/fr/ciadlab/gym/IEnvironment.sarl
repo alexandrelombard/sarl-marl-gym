@@ -3,14 +3,12 @@
  */
 package fr.ciadlab.gym
 
-import java.util.UUID
-
 /** 
  * @author Alexandre Lombard
  * 
  */
-interface IStateProvider {
+interface IEnvironment extends IActionProvider, IStateProvider {
 	
-	def getState(uuid : UUID) : State
+	def reset() : void
 	
 }
