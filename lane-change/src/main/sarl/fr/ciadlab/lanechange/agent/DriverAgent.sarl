@@ -11,6 +11,11 @@ import io.sarl.core.Destroy
 import io.sarl.core.Initialize
 import fr.ciadlab.lanechange.skills.direct.DirectVehicleControl
 import fr.ciadlab.lanechange.skills.direct.DirectVehicleSelfPerception
+import fr.ciadlab.gym.IEnvironment
+import fr.ciadlab.gym.skills.EnvironmentActionSkill
+import fr.ciadlab.gym.capacities.EnvironmentAction
+import fr.ciadlab.gym.skills.EnvironmentStatePerceptionSkill
+import fr.ciadlab.gym.capacities.EnvironmentStatePerception
 
 /** 
  * Represents a driver
@@ -22,12 +27,19 @@ agent DriverAgent {
 
 	on Initialize {
 		synchronized (this) {
-			val vehicle = occurrence.parameters.get(0) as Vehicle	
+//			val vehicle = occurrence.parameters.get(0) as Vehicle	
+//			
+//			setSkill(new DirectVehicleControl(vehicle), typeof(VehicleControlCapacity))
+//			setSkill(new DirectVehicleSelfPerception(vehicle), typeof(VehicleSelfPerceptionCapacity))
+//			
+//			registerBehavior(new DefaultDriverBehavior(this))
+
+			val environment = occurrence.parameters.get(0) as IEnvironment
 			
-			setSkill(new DirectVehicleControl(vehicle), typeof(VehicleControlCapacity))
-			setSkill(new DirectVehicleSelfPerception(vehicle), typeof(VehicleSelfPerceptionCapacity))
+			setSkill(new EnvironmentActionSkill(environment), typeof(EnvironmentAction))
+			setSkill(new EnvironmentStatePerceptionSkill(environment), typeof(EnvironmentStatePerception))
 			
-			registerBehavior(new DefaultDriverBehavior(this))
+			registerBehavior(new RLAgentBehavior(this))
 		}
 	}
 

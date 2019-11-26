@@ -1,0 +1,34 @@
+/** 
+ * 
+ */
+package fr.ciadlab.lanechange.^agent
+
+import io.sarl.core.AgentKilled
+import io.sarl.core.AgentSpawned
+import io.sarl.core.ContextJoined
+import io.sarl.core.ContextLeft
+import io.sarl.core.Destroy
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import io.sarl.core.MemberJoined
+import io.sarl.core.MemberLeft
+import io.sarl.core.ParticipantJoined
+import io.sarl.core.ParticipantLeft
+import io.sarl.core.SpaceCreated
+import io.sarl.core.SpaceDestroyed
+import fr.ciadlab.gym.capacities.EnvironmentAction
+import fr.ciadlab.gym.capacities.EnvironmentStatePerception
+import fr.ciadlab.gym.SimulationStep
+
+/** 
+ * 
+ * @author Alexandre Lombard
+ * 
+ */
+behavior RLAgentBehavior {
+	uses EnvironmentAction, EnvironmentStatePerception
+
+	on SimulationStep {
+		
+	}
+}
