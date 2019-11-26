@@ -25,6 +25,10 @@ class Lane extends Object {
 	@Accessors(PUBLIC_GETTER)
 	var nextLane : Lane
 	
+	new() {
+		this(null, null)
+	}
+	
 	new(previousLane : Lane) {
 		this(previousLane, null)
 	}

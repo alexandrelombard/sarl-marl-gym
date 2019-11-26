@@ -33,7 +33,7 @@ class Vehicle extends Object {
 	var acceleration : Double = 0.0
 	
 	@Accessors(PUBLIC_GETTER)
-	var wheelAngle : Double
+	var wheelAngle : Double = 0.0
 	
 	@Accessors(PUBLIC_GETTER)
 	var yaw : Double = 0.0
@@ -45,6 +45,14 @@ class Vehicle extends Object {
 	@Accessors(PUBLIC_GETTER)
 	var state : VehicleState
 	
+	/**
+	 * @param initialPosition the initial position
+	 * @param initialDirection the initial direction
+	 * @param initialSpeed the initial speed
+	 * @param initialLane the reference to the initial lane
+	 * @param wheelBase the wheel base of the vehicle (for computing movement)
+	 * @param length the length of the vehicle (for computing collisions)
+	 */
 	new(initialPosition : Vector2D, initialDirection : Vector2D, initialSpeed : Double, @Nonnull initialLane : Lane, 
 		wheelBase : Double = 4.0, length : Double = 5.0
 	) {
@@ -82,23 +90,36 @@ class Vehicle extends Object {
 			val traveledDistance = this.velocity.norm * deltaTime + 0.5 * this.acceleration * (deltaTime * deltaTime)
 											
 			// Compute the rotation properties according to the wheel angle
+			// val radius = this.wheelBase / Math.tan(this.wheelAngle)
 			val radius = this.wheelBase / Math.tan(this.wheelAngle)
+			
+			var newPosition : Vector2D
+			var newDirectionVector : Vector2D
+			var newVelocity : Vector2D
+			
+			if(Math.abs(radius) > 1e7) {
+				// We are in a straight line
+				newDirectionVector = this.velocity.normalize
+				newVelocity = new Vector2D(newSpeed, newDirectionVector)
+				newPosition = this.position.add(traveledDistance, newDirectionVector)
+			} else {
+				val centerAngle = direction + Math.PI / 2.0
+				val centerDirection = new Vector2D(Math.cos(centerAngle), Math.sin(centerAngle))
+				val center = this.position.add(radius, centerDirection) // The sign of the radius is considered here
+				val centralAngle = traveledDistance / radius // Warning: is the radius sign relevant here?
+				// Compute the new direction angle according to the wheel angle and the acceleration
+				val newDirection = direction + centralAngle
+				newDirectionVector = new Vector2D(Math.cos(newDirection), Math.sin(newDirection))
 
-			val centerAngle = direction + Math.PI / 2.0
-			val centerDirection = new Vector2D(Math.cos(centerAngle), Math.sin(centerAngle))
-			val center = this.position.add(radius, centerDirection) // The sign of the radius is considered here
-			val centralAngle = traveledDistance / radius // Warning: is the radius sign relevant here?
-			// Compute the new direction angle according to the wheel angle and the acceleration
-			val newDirection = direction + centralAngle
-			val newDirectionVector = new Vector2D(Math.cos(newDirection), Math.sin(newDirection))
-
-			// Compute the new velocity
-			val newVelocity = new Vector2D(newSpeed, newDirectionVector)
-			// Compute the new position
-			val dx = this.position.x - center.x
-			val dy = this.position.y - center.y
-			val newPosition = new Vector2D(dx * Math.cos(centralAngle) - dy * Math.sin(centralAngle),
-				dx * Math.sin(centralAngle) + dy * Math.cos(centralAngle))
+				// Compute the new velocity
+				newVelocity = new Vector2D(newSpeed, newDirectionVector)
+				// Compute the new position
+				val dx = this.position.x - center.x
+				val dy = this.position.y - center.y
+				newPosition = new Vector2D(
+					dx * Math.cos(centralAngle) - dy * Math.sin(centralAngle) + center.x,
+					dx * Math.sin(centralAngle) + dy * Math.cos(centralAngle) + center.y)
+			}
 
 			// Update everything
 			this.velocity = newVelocity
