@@ -99,7 +99,7 @@ class Vehicle extends Object {
 			
 			if(Math.abs(radius) > 1e7) {
 				// We are in a straight line
-				newDirectionVector = this.velocity.normalize
+				newDirectionVector = this.direction		// The direction doesn't change
 				newVelocity = new Vector2D(newSpeed, newDirectionVector)
 				newPosition = this.position.add(traveledDistance, newDirectionVector)
 			} else {
