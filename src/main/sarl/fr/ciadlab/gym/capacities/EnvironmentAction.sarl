@@ -1,0 +1,20 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym.capacities
+
+import fr.ciadlab.gym.Action
+import java.util.List
+
+/** 
+ * The capacity to interact with the environment
+ * @author Alexandre Lombard
+ * 
+ */
+capacity EnvironmentAction {
+
+	def getAvailableActions() : List<Action>
+
+	def applyAction(action : Action)
+	
+}

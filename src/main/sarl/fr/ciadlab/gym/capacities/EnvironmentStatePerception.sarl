@@ -1,0 +1,17 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym.capacities
+
+import fr.ciadlab.gym.State
+
+/** 
+ * The capacity to perceive the state of the environment
+ * @author Alexandre Lombard
+ * 
+ */
+capacity EnvironmentStatePerception {
+	
+	def getState : State
+	
+}

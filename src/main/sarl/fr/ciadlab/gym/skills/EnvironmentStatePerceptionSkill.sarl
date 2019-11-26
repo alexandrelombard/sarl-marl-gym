@@ -1,0 +1,27 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym.skills
+
+import fr.ciadlab.gym.capacities.EnvironmentStatePerception
+import fr.ciadlab.gym.State
+import fr.ciadlab.gym.IEnvironment
+
+/** 
+ * Basic skill used to perceive the environment
+ * @author Alexandre Lombard
+ * 
+ */
+skill EnvironmentStatePerceptionSkill implements EnvironmentStatePerception {
+	
+	val environment : IEnvironment
+	
+	new(environment : IEnvironment) {
+		this.environment = environment
+	}
+	
+	def getState : State {
+		return this.environment.getState(this.ID)
+	}
+	
+}

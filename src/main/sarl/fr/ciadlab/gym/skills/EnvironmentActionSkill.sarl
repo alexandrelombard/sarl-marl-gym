@@ -1,0 +1,31 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym.skills
+
+import fr.ciadlab.gym.Action
+import fr.ciadlab.gym.IEnvironment
+import fr.ciadlab.gym.capacities.EnvironmentAction
+import java.util.List
+
+/** 
+ * Basic skill used to interact with the environment
+ * @author Alexandre Lombard
+ * 
+ */
+skill EnvironmentActionSkill implements EnvironmentAction {
+	
+	val environment : IEnvironment
+	
+	new(environment : IEnvironment) {
+		this.environment = environment
+	}
+
+	override applyAction(action : Action) {
+		this.environment.applyAction(this.ID, action)
+	}
+
+	override getAvailableActions : List<Action> {
+		this.environment.getAvailableActions(this.ID)
+	}
+}
