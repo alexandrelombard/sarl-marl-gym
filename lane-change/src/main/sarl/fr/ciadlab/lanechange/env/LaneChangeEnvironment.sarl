@@ -19,6 +19,13 @@ import java.util.stream.Collectors
  */
 class LaneChangeEnvironment extends Object implements IEnvironment  {
 	
+	/** The shape of a state:
+	 *    3 -> in the lateral direction (left lane, current lane, right lane), 
+	 *    10 -> in the longitudinal direction (fixed steps, starting just before the vehicle and going forward,
+	 * 			to simulate the perception field of a radar)
+	 */
+	static val STATE_SHAPE = #[3, 10]
+	
 	val availableActions = <Action>newArrayList(
 		new Action(0, "NO_ACCELERATION"),
 		new Action(1, "SOFT_ACCELERATION"),
@@ -132,11 +139,15 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 	}
 	
 	def getState(uuid : UUID) : State {
+		// In a first instance, we will do that (similar to what's done by DeepTraffic):
+		// - Generate a list of cells making a discretisation of the environment
+		// - In each cell, place a number to precise the state of the cell (in a first approach it will be
+		//   0 for empty and 1 for full)
 		throw new UnsupportedOperationException("TODO: auto-generated method stub")
 	}
 	
 	def getStateShape(uuid : UUID) : int[] {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		return STATE_SHAPE
 	}
 	
 	private def unlockAll {
