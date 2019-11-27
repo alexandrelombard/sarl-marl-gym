@@ -137,6 +137,53 @@ class Lane extends Object {
 	}
 	
 	/**
+	 * Gets the abscissa of the closest point on the lane to the one given in parameters
+	 * @param position the point
+	 * @returns the abscissa of the closest point to the one given
+	 */
+	def getClosestPointAbscissa(position : Vector2D) : double {
+		var closestPoint : Vector2D
+		var closestDistance = Double.MAX_VALUE
+		
+		var abscissa = 0.0
+		var cumulativeLength = 0.0
+
+		for (var i = 0; i < points.size - 1; i++) {
+			val line = new Line(points.get(i), points.get(i + 1), 0.001)
+			val segment = new Segment(points.get(i), points.get(i + 1), line)
+			val segmentLength = points.get(i).distance(points.get(i + 1))
+
+			val distance = segment.distance(position)
+
+			if (distance < closestDistance) {
+				if (distance.epsilonEquals(segment.start.distance(position))) {
+					// The start is the closest point
+					closestPoint = segment.start
+					
+					abscissa = cumulativeLength
+				} else if (distance.epsilonEquals(segment.end.distance(position))) {
+					// The end is the closest point
+					closestPoint = segment.end
+					
+					abscissa = cumulativeLength + segmentLength
+				} else {
+					// The closest point is in the middle of the segment
+					val projection = line.project(position) as Vector2D
+					closestPoint = projection
+
+					abscissa = cumulativeLength + points.get(i).distance(closestPoint)
+				}
+
+				closestDistance = distance
+			}
+
+			cumulativeLength += segmentLength
+		}
+
+		return abscissa
+	}
+	
+	/**
 	 * Computes the total length of this lane
 	 * @returns the total length
 	 */

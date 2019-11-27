@@ -3,28 +3,34 @@
  */
 package fr.ciadlab.lanechange.env
 
-import fr.ciadlab.gym.IActionProvider
-import fr.ciadlab.gym.IEnvironment
-import java.util.UUID
-import java.util.List
 import fr.ciadlab.gym.Action
+import fr.ciadlab.gym.IAsynchronousEnvironment
 import fr.ciadlab.gym.State
-import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.List
+import java.util.UUID
 import java.util.stream.Collectors
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 
  * Environment model
  * @author Alexandre Lombard
  * 
  */
-class LaneChangeEnvironment extends Object implements IEnvironment  {
+class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  {
+	
+	static val CELL_EMPTY = 0
+	static val CELL_OCCUPIED = 1
+	static val CELL_OUT = 2
+	
+	static val STATE_FORWARD_CELL_COUNT = 10
+	static val STATE_LANE_COUNT = 3
 	
 	/** The shape of a state:
 	 *    3 -> in the lateral direction (left lane, current lane, right lane), 
 	 *    10 -> in the longitudinal direction (fixed steps, starting just before the vehicle and going forward,
 	 * 			to simulate the perception field of a radar)
 	 */
-	static val STATE_SHAPE = #[3, 10]
+	static val STATE_SHAPE = #[STATE_FORWARD_CELL_COUNT, STATE_LANE_COUNT]
 	
 	val availableActions = <Action>newArrayList(
 		new Action(0, "NO_ACCELERATION"),
@@ -57,6 +63,8 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 	new(vehiclesCount : Integer = 1, lanesCount : Integer = 5) {
 		this.vehiclesCount = vehiclesCount
 		this.lanesCount = lanesCount
+		
+		this.initialize
 	}
 	
 	def clear {
@@ -99,7 +107,9 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 	}
 	
 	def step {
-		vehicles.forEach[it.update(0.1)]
+		this.vehicles.forEach[it.update(0.1)]
+		
+		this.unlockAll
 		
 		this.actionsForStep.clear
 	}
@@ -135,6 +145,10 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 			}
 			
 			this.actionsForStep.put(uuid, action)
+			
+			if(this.actionsForStep.size == vehicles.size) {
+				step
+			}
 		}
 	}
 	
@@ -143,7 +157,17 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 		// - Generate a list of cells making a discretisation of the environment
 		// - In each cell, place a number to precise the state of the cell (in a first approach it will be
 		//   0 for empty and 1 for full)
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		val internalState = newIntArrayOfSize(STATE_SHAPE.get(0) * STATE_SHAPE.get(1))
+		val vehicle = this.vehicleAffectation.get(uuid)
+		val lane = vehicle.lane
+		
+		// For each lane
+		var stateLanes = #[lane.previousLane, lane, lane.nextLane]
+		for(var l = 0; l < STATE_LANE_COUNT; l++) {
+			fillLaneState(vehicle, stateLanes.get(l), l, internalState)
+		}
+		
+		return null
 	}
 	
 	def getStateShape(uuid : UUID) : int[] {
@@ -157,4 +181,36 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 		}
 	}
 	
+	private def fillLaneState(vehicle : Vehicle, lane : Lane, laneIndex : int, internalState : int[]) {
+		if (lane === null) {
+			// We are out of the road
+			for (var c = 0; c < STATE_FORWARD_CELL_COUNT; c++) {
+				internalState.set(laneIndex * STATE_FORWARD_CELL_COUNT + c, CELL_OUT)
+			}
+
+		} else {
+			// We are on the road
+			val vehicleLaneAbscissa = lane.getClosestPointAbscissa(vehicle.position)
+			val vehiclesOnLane = this.vehicles.stream.filter[it.lane == lane].collect(Collectors.toList)
+			val laneLength = lane.length
+			val stepLength = 5.0
+			for (var c = 0; c < STATE_FORWARD_CELL_COUNT; c++) {
+				val abscissa = vehicleLaneAbscissa + c * stepLength
+				if (abscissa > laneLength) {
+					internalState.set(laneIndex * STATE_FORWARD_CELL_COUNT + c, CELL_OUT)
+				} else {
+					// If among the vehicles, there is one whose abscissa is within the step length range
+					// the cell is blocked, otherwise, it's empty
+					if (vehiclesOnLane.stream.anyMatch [
+						Math.abs(lane.getClosestPointAbscissa(it.position) - abscissa) < stepLength
+					]) {
+						internalState.set(laneIndex * STATE_FORWARD_CELL_COUNT + c, CELL_OCCUPIED)
+					} else {
+						internalState.set(laneIndex * STATE_FORWARD_CELL_COUNT + c, CELL_EMPTY)
+					}
+				}
+			}
+		}
+	}
+
 }

@@ -3,14 +3,15 @@
  */
 package fr.ciadlab.lanechange.env
 
-import fr.ciadlab.gym.IEnvironment
+import fr.ciadlab.gym.IAsynchronousEnvironment
 import fr.ciadlab.gym.rl4j.StateEncodable
+import java.util.UUID
 import org.deeplearning4j.gym.StepReply
 import org.deeplearning4j.rl4j.mdp.MDP
+import org.deeplearning4j.rl4j.^space.ArrayObservationSpace
 import org.deeplearning4j.rl4j.^space.DiscreteSpace
 import org.deeplearning4j.rl4j.^space.ObservationSpace
-import java.util.UUID
-import org.deeplearning4j.rl4j.^space.ArrayObservationSpace
+import org.json.JSONObject
 
 /** 
  * Environment MDP
@@ -22,10 +23,10 @@ class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
 	val observationSpace : ObservationSpace<StateEncodable>
 	val actionSpace : DiscreteSpace
 	
-	val environment : IEnvironment
+	val environment : IAsynchronousEnvironment
 	val agentId : UUID
 	
-	new (environment : IEnvironment, agentId : UUID) {
+	new (environment : IAsynchronousEnvironment, agentId : UUID) {
 		this.environment = environment
 		this.agentId = agentId
 		
@@ -67,14 +68,18 @@ class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
 				
 		if (environmentAction.isPresent) {
 			this.environment.applyAction(this.agentId, environmentAction.get())	
+			
+			this.environment.waitOnStep
+
+			val newState = new StateEncodable(this.environment.getState(this.agentId))
+			val reward = 0.0	// TODO
+			val done = false	// TODO
+			val data = new JSONObject()
+
+			return new StepReply<StateEncodable>(newState, reward, done, data)
 		} else {
 			throw new IllegalArgumentException("Invalid action ID")
 		}
-		
-		// FIXME We should return the state, once all the agents have applied their actions and the step has
-		// been run, while this method should block
-		
-		return null
 	}
 	
 }

@@ -1,0 +1,11 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym.events
+
+/** 
+ * Event triggered when the environment is initialized
+ * @author Alexandre Lombard
+ * 
+ */
+event EnvironmentInitialized

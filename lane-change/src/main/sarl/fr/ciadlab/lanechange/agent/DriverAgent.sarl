@@ -39,7 +39,7 @@ agent DriverAgent {
 			setSkill(new EnvironmentActionSkill(environment), typeof(EnvironmentAction))
 			setSkill(new EnvironmentStatePerceptionSkill(environment), typeof(EnvironmentStatePerception))
 			
-			registerBehavior(new RLAgentBehavior(this))
+			registerBehavior(new RLAgentBehavior(this), environment)
 		}
 	}
 

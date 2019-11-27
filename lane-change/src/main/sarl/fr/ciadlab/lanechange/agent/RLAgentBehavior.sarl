@@ -3,25 +3,27 @@
  */
 package fr.ciadlab.lanechange.^agent
 
-import fr.ciadlab.gym.IEnvironment
+import fr.ciadlab.gym.IAsynchronousEnvironment
 import fr.ciadlab.gym.SimulationStep
-import fr.ciadlab.gym.capacities.EnvironmentAction
-import fr.ciadlab.gym.capacities.EnvironmentStatePerception
 import fr.ciadlab.lanechange.env.EnvironmentMDP
 import io.sarl.core.Initialize
+import java.util.Calendar
 import org.deeplearning4j.rl4j.learning.sync.qlearning.QLearning
 import org.deeplearning4j.rl4j.learning.sync.qlearning.discrete.QLearningDiscreteDense
 import org.deeplearning4j.rl4j.network.dqn.DQNFactoryStdDense
 import org.deeplearning4j.rl4j.util.DataManager
 import org.nd4j.linalg.learning.config.Adam
+import fr.ciadlab.gym.events.EnvironmentInitialized
+import io.sarl.core.Logging
 
 /** 
- * 
+ * RL agent behavior
  * @author Alexandre Lombard
  * 
  */
 behavior RLAgentBehavior {
-	uses EnvironmentAction, EnvironmentStatePerception
+	uses Logging
+	// uses EnvironmentAction, EnvironmentStatePerception	// Not required because delegated to the MDP
 	
 	val RL_AGENT_QL = new QLearning.QLConfiguration(
 			123, 	//Random seed
@@ -44,13 +46,33 @@ behavior RLAgentBehavior {
 			.numHiddenNodes(16)
 			.numLayer(3)
 			.build()
+			
+	var environment: IAsynchronousEnvironment
 	
 	on Initialize {
-		val environment = occurrence.parameters.get(0) as IEnvironment
-		
-		val dataManager = new DataManager(true)
-		val mdp = new EnvironmentMDP(environment, this.ID)
-		val dql = new QLearningDiscreteDense(mdp, RL_AGENT_NET, RL_AGENT_QL, dataManager)
+		synchronized (this) {
+			this.environment = occurrence.parameters.get(0) as IAsynchronousEnvironment
+
+			info("Initializing RL agent: " + this.ID.toString + " ; Environment is: " + this.environment)
+		}
+	}
+	
+	on EnvironmentInitialized {
+		synchronized (this) {
+			val agentId = this.ID
+			
+			info("Environment initialized, starting learning for RL agent: " + agentId.toString)
+			
+			val dataManager = new DataManager(true)
+			val mdp = new EnvironmentMDP(this.environment, agentId)
+			val dql = new QLearningDiscreteDense(mdp, RL_AGENT_NET, RL_AGENT_QL, dataManager)
+
+			// ...
+			dql.train
+
+			val policy = dql.policy
+			policy.save(Calendar.getInstance().toString + "_" + this.ID.toString)
+		}
 	}
 
 	on SimulationStep {

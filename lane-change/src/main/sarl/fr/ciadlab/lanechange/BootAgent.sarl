@@ -3,17 +3,13 @@
  */
 package fr.ciadlab.lanechange
 
-import fr.ciadlab.lanechange.env.MultilaneRoadFactory
+import fr.ciadlab.lanechange.^agent.DriverAgent
+import fr.ciadlab.lanechange.env.LaneChangeEnvironment
 import io.sarl.core.Destroy
 import io.sarl.core.Initialize
-import io.sarl.core.Logging
-import fr.ciadlab.lanechange.env.Vehicle
-import fr.ciadlab.lanechange.^agent.DriverAgent
 import io.sarl.core.Lifecycle
-import io.sarl.core.Schedules
 import io.sarl.core.DefaultContextInteractions
-import fr.ciadlab.gym.TimeSimulationStep
-import fr.ciadlab.lanechange.env.LaneChangeEnvironment
+import fr.ciadlab.gym.events.EnvironmentInitialized
 
 /** 
  * Initializes the simulation
@@ -21,7 +17,7 @@ import fr.ciadlab.lanechange.env.LaneChangeEnvironment
  * 
  */
 agent BootAgent {
-	uses Lifecycle, Schedules, DefaultContextInteractions
+	uses Lifecycle, DefaultContextInteractions
 
 	on Initialize {
 		val vehiclesCount = 1
@@ -30,17 +26,18 @@ agent BootAgent {
 		
 		// Load the agents
 		for (var i = 0; i < vehiclesCount; i++) {
-			val vehicle = environment.vehicles.get(i)
-			
-			spawn(typeof(DriverAgent), vehicle)
+			val agentId = spawn(typeof(DriverAgent), environment)
+			environment.registerAgent(agentId)
 		}
 		
+		emit(new EnvironmentInitialized)
+		
 		// Schedule execution
-		every(100.milliseconds) [
-			environment.step
-			
-			emit(new TimeSimulationStep(0.1))
-		]
+//		every(100.milliseconds) [
+//			environment.step
+//			
+//			emit(new TimeSimulationStep(0.1))
+//		]
 	}
 
 	on Destroy {

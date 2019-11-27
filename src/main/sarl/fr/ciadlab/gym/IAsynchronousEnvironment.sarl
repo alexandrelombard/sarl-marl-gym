@@ -1,0 +1,17 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym
+
+import fr.ciadlab.gym.IEnvironment
+
+/** 
+ * Environment interface extended to allow to wait on the step execution
+ * @author Alexandre Lombard
+ * 
+ */
+interface IAsynchronousEnvironment extends IEnvironment {
+	
+	def waitOnStep
+	
+}
