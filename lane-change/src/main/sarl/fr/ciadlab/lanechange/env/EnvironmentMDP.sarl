@@ -10,6 +10,7 @@ import org.deeplearning4j.rl4j.mdp.MDP
 import org.deeplearning4j.rl4j.^space.DiscreteSpace
 import org.deeplearning4j.rl4j.^space.ObservationSpace
 import java.util.UUID
+import org.deeplearning4j.rl4j.^space.ArrayObservationSpace
 
 /** 
  * Environment MDP
@@ -18,12 +19,18 @@ import java.util.UUID
  */
 class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
 	
+	val observationSpace : ObservationSpace<StateEncodable>
+	val actionSpace : DiscreteSpace
+	
 	val environment : IEnvironment
 	val agentId : UUID
 	
-	new (agentId : UUID, environment : IEnvironment) {
-		this.agentId = agentId
+	new (environment : IEnvironment, agentId : UUID) {
 		this.environment = environment
+		this.agentId = agentId
+		
+		this.observationSpace = new ArrayObservationSpace<StateEncodable>(this.environment.getStateShape(this.agentId))
+		this.actionSpace = new DiscreteSpace(this.environment.getAvailableActions(this.agentId).size)
 	}
 
 	def close {
@@ -31,19 +38,20 @@ class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
 	}
 
 	def getActionSpace : DiscreteSpace {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		return this.actionSpace
 	}
 
 	def getObservationSpace : ObservationSpace<StateEncodable> {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		return this.observationSpace
 	}
 
 	def isDone : boolean {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		// FIXME
+		return false
 	}
 
 	def newInstance : MDP<StateEncodable, Integer, DiscreteSpace> {
-		return new EnvironmentMDP(this.agentId, this.environment)
+		return new EnvironmentMDP(this.environment, this.agentId)
 	}
 	
 	def reset : StateEncodable {
@@ -63,8 +71,8 @@ class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
 			throw new IllegalArgumentException("Invalid action ID")
 		}
 		
-		// FIXME: We should return the state, once all the agents have applied their actions and the step has
-		// been run
+		// FIXME We should return the state, once all the agents have applied their actions and the step has
+		// been run, while this method should block
 		
 		return null
 	}

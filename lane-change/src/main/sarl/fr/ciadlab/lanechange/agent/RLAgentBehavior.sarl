@@ -49,7 +49,7 @@ behavior RLAgentBehavior {
 		val environment = occurrence.parameters.get(0) as IEnvironment
 		
 		val dataManager = new DataManager(true)
-		val mdp = new EnvironmentMDP(environment)
+		val mdp = new EnvironmentMDP(environment, this.ID)
 		val dql = new QLearningDiscreteDense(mdp, RL_AGENT_NET, RL_AGENT_QL, dataManager)
 	}
 

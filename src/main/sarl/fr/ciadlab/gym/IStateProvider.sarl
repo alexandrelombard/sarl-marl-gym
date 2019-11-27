@@ -11,6 +11,18 @@ import java.util.UUID
  */
 interface IStateProvider {
 	
+	/**
+	 * Gets the state for an agent
+	 * @param uuid the ID of the agent
+	 * @returns the state of this agent
+	 */
 	def getState(uuid : UUID) : State
+	
+	/**
+	 * Gets the shape of a state returned by this provider
+	 * @param uuid the ID of the agent
+	 * @returns the shape of the state as an array listing the size of each dimension
+	 */
+	def getStateShape(uuid : UUID) : int[]
 	
 }

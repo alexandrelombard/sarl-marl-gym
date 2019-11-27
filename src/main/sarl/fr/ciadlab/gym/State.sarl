@@ -15,11 +15,11 @@ class State extends Object {
 	@Accessors(PUBLIC_GETTER)
 	val state : int[]
 	@Accessors(PUBLIC_GETTER)
-	val sizes : int[]
+	val shape : int[]
 	
 	new (state : int[], sizes : int[]) {
 		this.state = state
-		this.sizes = sizes
+		this.shape = sizes
 		
 		assert(sum(sizes) == state.length)
 	}

@@ -12,6 +12,11 @@ import java.util.UUID
  */
 interface IActionProvider {
 	
+	/**
+	 * Gets the ordered list of all possible actions.
+	 * The implementation class for this must ensure that the ID are consequent and matching their
+	 * position in the list.
+	 */
 	def getAvailableActions(uuid : UUID) : List<Action>
 	
 	def applyAction(uuid : UUID, action : Action)

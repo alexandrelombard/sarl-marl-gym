@@ -38,7 +38,14 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 	
 	val agents = <UUID>newArrayList
 	
+	/** A map making the link between the agent ID and their vehicle */
 	val vehicleAffectation = <UUID, Vehicle> newHashMap
+	
+	/** A map storing the actions run for the step */
+	val actionsForStep = <UUID, Action>newHashMap
+	
+	/** Locks for allowing agents to wait on step */
+	val locks = <Object>newArrayList
 		
 	new(vehiclesCount : Integer = 1, lanesCount : Integer = 5) {
 		this.vehiclesCount = vehiclesCount
@@ -66,7 +73,7 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 	
 	def registerAgent(uuid : UUID) {
 		synchronized (this) {
-			agents.add(uuid)
+			this.agents.add(uuid)
 
 			// Affect a vehicle to the newly registered agent
 			val availableVehicle = this.vehicles.stream.filter([!this.vehicleAffectation.containsKey(it)]).findFirst
@@ -86,6 +93,17 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 	
 	def step {
 		vehicles.forEach[it.update(0.1)]
+		
+		this.actionsForStep.clear
+	}
+	
+	def waitOnStep {
+		val lock = new Object
+		this.locks.add(lock)
+		
+		synchronized(lock) {
+			lock.wait
+		}
 	}
 	
 	def getAvailableActions(uuid : UUID) : List<Action> {
@@ -107,13 +125,25 @@ class LaneChangeEnvironment extends Object implements IEnvironment  {
 					vehicle.acceleration = -2.0
 				case 4:
 					vehicle.acceleration = -6.0
-				
 			}
+			
+			this.actionsForStep.put(uuid, action)
 		}
 	}
 	
 	def getState(uuid : UUID) : State {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+	def getStateShape(uuid : UUID) : int[] {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+	private def unlockAll {
+		synchronized (this) {
+			this.locks.forEach[it.notifyAll]
+			this.locks.clear
+		}
 	}
 	
 }
