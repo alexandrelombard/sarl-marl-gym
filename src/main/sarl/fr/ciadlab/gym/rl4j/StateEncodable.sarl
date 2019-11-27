@@ -1,0 +1,29 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym.rl4j
+
+import fr.ciadlab.gym.State
+import org.deeplearning4j.rl4j.^space.Encodable
+import java.util.Arrays
+
+/** 
+ * Proxy class for State compatibility with RL4J
+ * @author Alexandre Lombard
+ * 
+ */
+class StateEncodable implements Encodable {
+	
+	val state : State
+	
+	new (state : State) {
+		this.state = state
+	}
+	
+	def toArray : double[] {
+		// Remark: if this is not efficient, we will have to store the state as double[] directly
+		// in the state class
+		return Arrays.stream(state.state).asDoubleStream().toArray()
+	}
+	
+}

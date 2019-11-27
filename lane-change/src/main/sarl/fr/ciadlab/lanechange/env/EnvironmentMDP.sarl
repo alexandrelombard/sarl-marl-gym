@@ -1,0 +1,72 @@
+/** 
+ * 
+ */
+package fr.ciadlab.lanechange.env
+
+import fr.ciadlab.gym.IEnvironment
+import fr.ciadlab.gym.rl4j.StateEncodable
+import org.deeplearning4j.gym.StepReply
+import org.deeplearning4j.rl4j.mdp.MDP
+import org.deeplearning4j.rl4j.^space.DiscreteSpace
+import org.deeplearning4j.rl4j.^space.ObservationSpace
+import java.util.UUID
+
+/** 
+ * Environment MDP
+ * @author Alexandre Lombard
+ * 
+ */
+class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
+	
+	val environment : IEnvironment
+	val agentId : UUID
+	
+	new (agentId : UUID, environment : IEnvironment) {
+		this.agentId = agentId
+		this.environment = environment
+	}
+
+	def close {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+
+	def getActionSpace : DiscreteSpace {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+
+	def getObservationSpace : ObservationSpace<StateEncodable> {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+
+	def isDone : boolean {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+
+	def newInstance : MDP<StateEncodable, Integer, DiscreteSpace> {
+		return new EnvironmentMDP(this.agentId, this.environment)
+	}
+	
+	def reset : StateEncodable {
+		// Note it's dangerous to allow a single agent to trigger the reset of the environment
+		this.environment.reset
+		
+		return new StateEncodable(this.environment.getState(this.agentId))
+	}
+	
+	def step(action : Integer) : StepReply<StateEncodable> {
+		val environmentAction = 
+				this.environment.getAvailableActions(this.agentId).stream.filter [it.id == action].findFirst
+				
+		if (environmentAction.isPresent) {
+			this.environment.applyAction(this.agentId, environmentAction.get())	
+		} else {
+			throw new IllegalArgumentException("Invalid action ID")
+		}
+		
+		// FIXME: We should return the state, once all the agents have applied their actions and the step has
+		// been run
+		
+		return null
+	}
+	
+}
