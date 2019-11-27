@@ -18,11 +18,11 @@ class State extends Object {
 	@Accessors(PUBLIC_GETTER)
 	@Nonnull val shape : int[]
 	
-	new (@Nonnull state : int[], @Nonnull sizes  : int[]) {
+	new (@Nonnull state : int[], @Nonnull shape  : int[]) {
 		this.state = state
-		this.shape = sizes
+		this.shape = shape
 		
-		assert(sum(sizes) == state.length)
+		assert(sum(shape) == state.length)
 	}
 	
 	private static def sum(array: int[]) {

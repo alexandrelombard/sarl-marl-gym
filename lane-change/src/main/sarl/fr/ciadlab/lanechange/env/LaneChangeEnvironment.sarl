@@ -167,7 +167,7 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 			fillLaneState(vehicle, stateLanes.get(l), l, internalState)
 		}
 		
-		return null
+		return new State(internalState, STATE_SHAPE)
 	}
 	
 	def getStateShape(uuid : UUID) : int[] {
