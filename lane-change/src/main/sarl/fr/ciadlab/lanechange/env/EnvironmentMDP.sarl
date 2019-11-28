@@ -64,7 +64,9 @@ class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
 	
 	def step(action : Integer) : StepReply<StateEncodable> {
 		val environmentAction = 
-				this.environment.getAvailableActions(this.agentId).stream.filter [it.id == action].findFirst
+				this.environment.getAvailableActions(this.agentId).stream.filter[it.id == action].findFirst
+
+		println("STEP (" + this.agentId + ", " + action + ", " + environmentAction.isPresent + ")")
 				
 		if (environmentAction.isPresent) {
 			this.environment.applyAction(this.agentId, environmentAction.get())	
@@ -73,7 +75,7 @@ class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
 
 			val newState = new StateEncodable(this.environment.getState(this.agentId))
 			val reward = 0.0	// TODO
-			val done = false	// TODO
+			val done = true	// TODO
 			val data = new JSONObject()
 
 			return new StepReply<StateEncodable>(newState, reward, done, data)

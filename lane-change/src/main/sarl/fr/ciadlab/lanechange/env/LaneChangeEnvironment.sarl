@@ -30,7 +30,7 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 	 *    10 -> in the longitudinal direction (fixed steps, starting just before the vehicle and going forward,
 	 * 			to simulate the perception field of a radar)
 	 */
-	static val STATE_SHAPE = #[STATE_FORWARD_CELL_COUNT, STATE_LANE_COUNT]
+	static val STATE_SHAPE = #[STATE_FORWARD_CELL_COUNT * STATE_LANE_COUNT]
 	
 	val availableActions = <Action>newArrayList(
 		new Action(0, "NO_ACCELERATION"),
@@ -157,7 +157,7 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 		// - Generate a list of cells making a discretisation of the environment
 		// - In each cell, place a number to precise the state of the cell (in a first approach it will be
 		//   0 for empty and 1 for full)
-		val internalState = newIntArrayOfSize(STATE_SHAPE.get(0) * STATE_SHAPE.get(1))
+		val internalState = newIntArrayOfSize(STATE_FORWARD_CELL_COUNT * STATE_LANE_COUNT)
 		val vehicle = this.vehicleAffectation.get(uuid)
 		val lane = vehicle.lane
 		
