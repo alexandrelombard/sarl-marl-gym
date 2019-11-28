@@ -19,6 +19,12 @@ interface IActionProvider {
 	 */
 	def getAvailableActions(uuid : UUID) : List<Action>
 	
-	def applyAction(uuid : UUID, action : Action)
+	/**
+	 * Apply an action
+	 * @param uuid the ID of the agent
+	 * @param action the action
+	 * @returns <code>true</code> if the action has been applied instantaneously, <code>false</code> otherwise
+	 */
+	def applyAction(uuid : UUID, action : Action) : boolean
 	
 }

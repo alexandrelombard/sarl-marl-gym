@@ -127,7 +127,7 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 		return availableActions
 	}
 	
-	def applyAction(uuid : UUID, action : Action) {
+	def applyAction(uuid : UUID, action : Action) : boolean {
 		synchronized(this) {
 			val vehicle = this.vehicleAffectation.get(uuid)
 			
@@ -148,7 +148,11 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 			
 			if(this.actionsForStep.size == vehicles.size) {
 				step
+				
+				return true
 			}
+			
+			return false
 		}
 	}
 	
