@@ -16,6 +16,7 @@ import org.nd4j.linalg.learning.config.Adam
 import fr.ciadlab.gym.events.EnvironmentInitialized
 import io.sarl.core.Logging
 import fr.ciadlab.gym.state.StateDoubleArray
+import java.io.File
 
 /** 
  * RL agent behavior
@@ -73,7 +74,10 @@ behavior RLAgentBehavior {
 			dql.train
 
 			val policy = dql.policy
-			policy.save(Calendar.getInstance().toString + "_" + agentId.toString)
+			val outputFileName = "" + Calendar.getInstance().timeInMillis + "_" + agentId.toString
+			println("Saving policy to: " + outputFileName)
+			new File(outputFileName).createNewFile
+			policy.save(outputFileName)
 		}
 	}
 
