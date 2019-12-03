@@ -12,6 +12,7 @@ import org.deeplearning4j.rl4j.^space.ArrayObservationSpace
 import org.deeplearning4j.rl4j.^space.DiscreteSpace
 import org.deeplearning4j.rl4j.^space.ObservationSpace
 import org.json.JSONObject
+import fr.ciadlab.gym.state.StateDoubleArray
 
 /** 
  * Environment MDP
@@ -19,18 +20,23 @@ import org.json.JSONObject
  * 
  */
 class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
+
+	static val STEP_COUNT_LIMIT = 1000
 	
 	val observationSpace : ObservationSpace<StateEncodable>
 	val actionSpace : DiscreteSpace
 	
-	val environment : IAsynchronousEnvironment
+	val environment : IAsynchronousEnvironment<StateDoubleArray>
 	val agentId : UUID
 	
-	new (environment : IAsynchronousEnvironment, agentId : UUID) {
+	var stepCount = 0
+	
+	new (environment : IAsynchronousEnvironment<StateDoubleArray>, agentId : UUID) {
 		this.environment = environment
 		this.agentId = agentId
 		
-		this.observationSpace = new ArrayObservationSpace<StateEncodable>(this.environment.getStateShape(this.agentId))
+		this.observationSpace = new ArrayObservationSpace<StateEncodable>(
+			this.environment.getStateShape(this.agentId))
 		this.actionSpace = new DiscreteSpace(this.environment.getAvailableActions(this.agentId).size)
 	}
 
@@ -59,14 +65,14 @@ class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
 		// Note it's dangerous to allow a single agent to trigger the reset of the environment
 		this.environment.reset
 		
+		println("Reset environment")
+		
 		return new StateEncodable(this.environment.getState(this.agentId))
 	}
 	
 	def step(action : Integer) : StepReply<StateEncodable> {
 		val environmentAction = 
 				this.environment.getAvailableActions(this.agentId).stream.filter[it.id == action].findFirst
-
-		println("STEP (" + this.agentId + ", " + action + ", " + environmentAction.isPresent + ")")
 				
 		if (environmentAction.isPresent) {
 			val immediatelyDone = this.environment.applyAction(this.agentId, environmentAction.get())	
@@ -75,14 +81,34 @@ class EnvironmentMDP implements MDP<StateEncodable, Integer, DiscreteSpace> {
 				this.environment.waitOnStep	
 			}
 
-			val newState = new StateEncodable(this.environment.getState(this.agentId))
-			val reward = 0.0	// TODO
-			val done = false	// TODO
+			val newState = this.environment.getState(this.agentId)
+			val newStateEncodable = new StateEncodable(newState)
+			val reward = getReward(newState)
+			val done = stepCount >= STEP_COUNT_LIMIT
 			val data = new JSONObject()
 
-			return new StepReply<StateEncodable>(newState, reward, done, data)
+			println("STEP (" + this.agentId + ", " + action + ", " + environmentAction.isPresent + ", " + reward + ", " + stepCount + ")")
+
+			if(stepCount < STEP_COUNT_LIMIT) {
+				stepCount++
+			} else {
+				stepCount = 0	
+			}
+
+			return new StepReply<StateEncodable>(newStateEncodable, reward, done, data)
 		} else {
 			throw new IllegalArgumentException("Invalid action ID")
+		}
+	}
+	
+	private def getReward(state : StateDoubleArray) : double {
+		// A really simple implementation of a reward function: if speed is close to 15, then it's good, otherwise it's bad
+		val speed = state.state.get(0)
+		
+		if (speed < 15) {
+			return speed	
+		} else {
+			return 30 - speed
 		}
 	}
 	

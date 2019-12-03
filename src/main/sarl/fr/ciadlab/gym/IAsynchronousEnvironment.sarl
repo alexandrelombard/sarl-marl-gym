@@ -10,7 +10,7 @@ import fr.ciadlab.gym.IEnvironment
  * @author Alexandre Lombard
  * 
  */
-interface IAsynchronousEnvironment extends IEnvironment {
+interface IAsynchronousEnvironment<T> extends IEnvironment<T> {
 	
 	def waitOnStep
 	

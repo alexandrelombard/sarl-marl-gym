@@ -7,7 +7,7 @@ package fr.ciadlab.gym
  * @author Alexandre Lombard
  * 
  */
-interface IEnvironment extends IActionProvider, IStateProvider {
+interface IEnvironment<T> extends IActionProvider, IStateProvider<T> {
 	
 	def reset() : void
 	def step() : void

@@ -7,6 +7,7 @@ import fr.ciadlab.gym.Action
 import fr.ciadlab.gym.IEnvironment
 import fr.ciadlab.gym.capacities.EnvironmentAction
 import java.util.List
+import fr.ciadlab.gym.state.StateDoubleArray
 
 /** 
  * Basic skill used to interact with the environment
@@ -15,9 +16,9 @@ import java.util.List
  */
 skill EnvironmentActionSkill implements EnvironmentAction {
 	
-	val environment : IEnvironment
+	val environment : IEnvironment<StateDoubleArray>
 	
-	new(environment : IEnvironment) {
+	new(environment : IEnvironment<StateDoubleArray>) {
 		this.environment = environment
 	}
 

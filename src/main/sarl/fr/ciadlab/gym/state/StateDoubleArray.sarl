@@ -1,0 +1,28 @@
+/** 
+ * 
+ */
+package fr.ciadlab.gym.state
+
+import javax.annotation.Nonnull
+import org.apache.commons.lang3.ArrayUtils
+
+/** 
+ * Represents a system state
+ * @author Alexandre Lombard
+ * 
+ */
+class StateDoubleArray extends StateArray<Double> {
+	
+	new (@Nonnull state : Double[], @Nonnull shape : int[]) {
+		super(state, shape)
+	}
+
+	new (@Nonnull state : double[], @Nonnull shape : int[]) {
+		super(ArrayUtils.toObject(state), shape)
+	}
+	
+	override toDoubleArray() : double[] {
+		return ArrayUtils.toPrimitive(this.state)
+	}
+	
+}

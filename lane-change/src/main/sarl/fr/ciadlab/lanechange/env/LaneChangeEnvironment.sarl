@@ -5,7 +5,7 @@ package fr.ciadlab.lanechange.env
 
 import fr.ciadlab.gym.Action
 import fr.ciadlab.gym.IAsynchronousEnvironment
-import fr.ciadlab.gym.State
+import fr.ciadlab.gym.state.StateDoubleArray
 import java.util.List
 import java.util.UUID
 import java.util.stream.Collectors
@@ -16,7 +16,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @author Alexandre Lombard
  * 
  */
-class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  {
+class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment<StateDoubleArray>  {
 	
 	static val CELL_EMPTY = 0
 	static val CELL_OCCUPIED = 1
@@ -24,13 +24,14 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 	
 	static val STATE_FORWARD_CELL_COUNT = 10
 	static val STATE_LANE_COUNT = 3
+	static val STATE_INTERNAL_VALUES_COUNT = 1
 	
 	/** The shape of a state:
 	 *    3 -> in the lateral direction (left lane, current lane, right lane), 
 	 *    10 -> in the longitudinal direction (fixed steps, starting just before the vehicle and going forward,
 	 * 			to simulate the perception field of a radar)
 	 */
-	static val STATE_SHAPE = #[STATE_FORWARD_CELL_COUNT * STATE_LANE_COUNT]
+	static val STATE_SHAPE = #[STATE_INTERNAL_VALUES_COUNT + STATE_FORWARD_CELL_COUNT * STATE_LANE_COUNT]
 	
 	val availableActions = <Action>newArrayList(
 		new Action(0, "NO_ACCELERATION"),
@@ -84,6 +85,12 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 			var randomDirection = randomLane.getDirection(randomAbscissa)
 			this.vehicles.add(new Vehicle(randomPosition, randomDirection, 0.0, randomLane))
 		}
+		
+		// Re-affect agents to vehicles (if present)
+		val agents = <UUID>newHashSet
+		agents.addAll(this.vehicleAffectation.keySet)
+		this.vehicleAffectation.clear
+		agents.forEach[registerAgent(it)]
 	}
 	
 	def registerAgent(uuid : UUID) {
@@ -91,7 +98,7 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 			this.agents.add(uuid)
 
 			// Affect a vehicle to the newly registered agent
-			val availableVehicle = this.vehicles.stream.filter([!this.vehicleAffectation.containsKey(it)]).findFirst
+			val availableVehicle = this.vehicles.stream.filter[!this.vehicleAffectation.containsKey(it)].findFirst
 
 			if (availableVehicle.isPresent) {
 				this.vehicleAffectation.put(uuid, availableVehicle.get)
@@ -156,12 +163,12 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 		}
 	}
 	
-	def getState(uuid : UUID) : State {
+	def getState(uuid : UUID) : StateDoubleArray {
 		// In a first instance, we will do that (similar to what's done by DeepTraffic):
 		// - Generate a list of cells making a discretisation of the environment
 		// - In each cell, place a number to precise the state of the cell (in a first approach it will be
 		//   0 for empty and 1 for full)
-		val internalState = newIntArrayOfSize(STATE_FORWARD_CELL_COUNT * STATE_LANE_COUNT)
+		val internalState = newDoubleArrayOfSize(STATE_FORWARD_CELL_COUNT * STATE_LANE_COUNT)
 		val vehicle = this.vehicleAffectation.get(uuid)
 		val lane = vehicle.lane
 		
@@ -171,9 +178,13 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 			fillLaneState(vehicle, stateLanes.get(l), l, internalState)
 		}
 		
-		// FIXME This does not consider the internal state of the vehicle (speed, position)
+		// The state vector is prefixed with internal attributes of the vehicle (ego-perception)
+		// FIXME It looks like the addition is not performed by the most efficient way
+		val completeState = newDoubleArrayOfSize(STATE_SHAPE.get(0))
+		completeState.set(0, vehicle.velocity.norm)
+		System.arraycopy(internalState, 0, completeState, 1, internalState.length)
 		
-		return new State(internalState, STATE_SHAPE)
+		return new StateDoubleArray(completeState, STATE_SHAPE)
 	}
 	
 	def getStateShape(uuid : UUID) : int[] {
@@ -187,7 +198,7 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 		}
 	}
 	
-	private def fillLaneState(vehicle : Vehicle, lane : Lane, laneIndex : int, internalState : int[]) {
+	private def fillLaneState(vehicle : Vehicle, lane : Lane, laneIndex : int, internalState : double[]) {
 		if (lane === null) {
 			// We are out of the road
 			for (var c = 0; c < STATE_FORWARD_CELL_COUNT; c++) {
@@ -207,9 +218,10 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 				} else {
 					// If among the vehicles, there is one whose abscissa is within the step length range
 					// the cell is blocked, otherwise, it's empty
-					if (vehiclesOnLane.stream.anyMatch [
+					val occupyingVehicle = vehiclesOnLane.stream.filter [
 						Math.abs(lane.getClosestPointAbscissa(it.position) - abscissa) < stepLength
-					]) {
+					].findAny
+					if (occupyingVehicle.isPresent) {
 						internalState.set(laneIndex * STATE_FORWARD_CELL_COUNT + c, CELL_OCCUPIED)
 					} else {
 						internalState.set(laneIndex * STATE_FORWARD_CELL_COUNT + c, CELL_EMPTY)

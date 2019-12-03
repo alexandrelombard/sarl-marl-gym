@@ -3,7 +3,7 @@
  */
 package fr.ciadlab.gym.capacities
 
-import fr.ciadlab.gym.State
+import fr.ciadlab.gym.state.StateDoubleArray
 
 /** 
  * The capacity to perceive the state of the environment
@@ -12,6 +12,6 @@ import fr.ciadlab.gym.State
  */
 capacity EnvironmentStatePerception {
 	
-	def getState : State
+	def getState : StateDoubleArray
 	
 }

@@ -9,14 +9,14 @@ import java.util.UUID
  * @author Alexandre Lombard
  * 
  */
-interface IStateProvider {
+interface IStateProvider<T> {
 	
 	/**
 	 * Gets the state for an agent
 	 * @param uuid the ID of the agent
 	 * @returns the state of this agent
 	 */
-	def getState(uuid : UUID) : State
+	def getState(uuid : UUID) : T
 	
 	/**
 	 * Gets the shape of a state returned by this provider

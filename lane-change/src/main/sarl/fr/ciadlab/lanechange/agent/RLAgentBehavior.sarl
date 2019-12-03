@@ -15,6 +15,7 @@ import org.deeplearning4j.rl4j.util.DataManager
 import org.nd4j.linalg.learning.config.Adam
 import fr.ciadlab.gym.events.EnvironmentInitialized
 import io.sarl.core.Logging
+import fr.ciadlab.gym.state.StateDoubleArray
 
 /** 
  * RL agent behavior
@@ -26,8 +27,8 @@ behavior RLAgentBehavior {
 	// uses EnvironmentAction, EnvironmentStatePerception	// Not required because delegated to the MDP
 	
 	val RL_AGENT_QL = new QLearning.QLConfiguration(
-			123, 	//Random seed
-			200, 	// Max step By epoch
+			123, 	// Random seed
+			1000, 	// Max step By epoch
             150000, // Max step
             150000, // Max size of experience replay
             32, 	// size of batches
@@ -48,11 +49,11 @@ behavior RLAgentBehavior {
 			.numLayer(3)
 			.build()
 			
-	var environment: IAsynchronousEnvironment
+	var environment : IAsynchronousEnvironment<StateDoubleArray>
 	
 	on Initialize {
 		synchronized (this) {
-			this.environment = occurrence.parameters.get(0) as IAsynchronousEnvironment
+			this.environment = occurrence.parameters.get(0) as IAsynchronousEnvironment<StateDoubleArray>
 
 			info("Initializing RL agent: " + this.ID.toString + " ; Environment is: " + this.environment)
 		}
@@ -72,7 +73,7 @@ behavior RLAgentBehavior {
 			dql.train
 
 			val policy = dql.policy
-			policy.save(Calendar.getInstance().toString + "_" + this.ID.toString)
+			policy.save(Calendar.getInstance().toString + "_" + agentId.toString)
 		}
 	}
 
