@@ -171,6 +171,8 @@ class LaneChangeEnvironment extends Object implements IAsynchronousEnvironment  
 			fillLaneState(vehicle, stateLanes.get(l), l, internalState)
 		}
 		
+		// FIXME This does not consider the internal state of the vehicle (speed, position)
+		
 		return new State(internalState, STATE_SHAPE)
 	}
 	
