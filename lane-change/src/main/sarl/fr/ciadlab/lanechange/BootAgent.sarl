@@ -20,7 +20,7 @@ agent BootAgent {
 	uses Lifecycle, DefaultContextInteractions
 
 	on Initialize {
-		val vehiclesCount = 2
+		val vehiclesCount = 1
 		
 		val environment = new LaneChangeEnvironment(vehiclesCount)
 		
